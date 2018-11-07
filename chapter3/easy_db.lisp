@@ -69,3 +69,15 @@
 	     
 (defun delete-rows (selector-fn)
   (setf *db* (remove-if selector-fn *db*)))
+
+(defmacro backwards (expr) (reverse expr))
+
+(defun make-comparison-expr (field value)
+  (list 'equal (list 'getf 'cd field) value))
+
+(defun make-comparisons-list (fields)
+  (loop while fields
+       collecting (make-comparison-expr (pop fields) (pop fields))))
+
+(defmacro where (&rest clauses)
+  `#'(lambda (cd) (and ,@(make-comparisons-list clauses))))
